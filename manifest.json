@@ -1,0 +1,22 @@
+{
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://onlyfans.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "description": "Onlyfans hightlighter",
+  "manifest_version": 3,
+  "name": "Onlyfans hightlighter",
+  "permissions": ["storage", "webRequest", "scripting"],
+  "host_permissions": ["https://onlyfans.com/*"],
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "version": "1.0"
+}
