@@ -6,7 +6,7 @@ var requestData = {
 let isHeadersListen;
 let isInjectListen;
 
-async function injectStyles(response) {
+async function injectStyles(response, sender) {
   if (response.type == "REQUEST_COMPLETE") {
     isInjectListen = chrome.runtime.onMessage.hasListener(injectStyles);
     if (isInjectListen) {
@@ -16,25 +16,20 @@ async function injectStyles(response) {
     }
 
     const friends = response.friends;
-    chrome.tabs.query({}, function (tabs) {
-      tabs.forEach(async (tab) => {
-        if (tab.active) {
-          let id = tab.id;
-          chrome.scripting.executeScript({
-            target: {
-              tabId: id,
-            },
-            func: changeStyles,
-            args: [friends],
-          });
-        }
-      });
+
+    chrome.scripting.executeScript({
+      target: {
+        tabId: sender.tab.id,
+      },
+      func: changeStyles,
+      args: [friends],
     });
   }
 }
 
 function getHeaders(details) {
   if (details.method == "GET" && /friends\?limit/.test(details.url)) {
+    console.log(details);
     details.requestHeaders.forEach((item) => {
       requestData.headers[item.name] = item.value;
     });
@@ -48,18 +43,10 @@ function getHeaders(details) {
       chrome.webRequest.onBeforeSendHeaders.removeListener(getHeaders);
     }
 
-    chrome.tabs.query({}, function (tabs) {
-      tabs.forEach(async (tab) => {
-        if (tab.active) {
-          let id = tab.id;
-
-          chrome.tabs.sendMessage(id, {
-            type: "REQUEST",
-            url: details.url,
-            body: requestData,
-          });
-        }
-      });
+    chrome.tabs.sendMessage(details.tabId, {
+      type: "REQUEST",
+      url: details.url,
+      body: requestData,
     });
   }
 }
@@ -90,7 +77,7 @@ function changeStyles(list) {
   }
 }
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+chrome.history.onVisited.addListener((changeInfo) => {
   let url = changeInfo.url;
   if (url && !/https:\/\/onlyfans\.com\/(my\/|bookmarks)/.test(url)) {
     // console.log(changeInfo.url);
@@ -117,3 +104,32 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
   }
 });
+
+// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+//   console.log(`Change info: ${changeInfo.url}`);
+//   let url = changeInfo.url;
+//   if (url && !/https:\/\/onlyfans\.com\/(my\/|bookmarks)/.test(url)) {
+//     // console.log(changeInfo.url);
+
+//     isHeadersListen =
+//       chrome.webRequest.onBeforeSendHeaders.hasListener(getHeaders);
+
+//     // console.log("has listener (getHeaders): " + isHeadersListen);
+
+//     if (!isHeadersListen) {
+//       // console.log("Устанавливаю listener getHeaders");
+//       chrome.webRequest.onBeforeSendHeaders.addListener(
+//         getHeaders,
+//         { urls: ["https://onlyfans.com/*"] },
+//         ["requestHeaders"]
+//       );
+//     }
+
+//     isInjectListen = chrome.runtime.onMessage.hasListener(injectStyles);
+//     // console.log("has listener (inject styles): " + isInjectListen);
+//     if (!isInjectListen) {
+//       // console.log("Устанавливаю listener inject styles");
+//       chrome.runtime.onMessage.addListener(injectStyles);
+//     }
+//   }
+// });

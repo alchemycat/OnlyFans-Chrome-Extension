@@ -11,12 +11,12 @@
   "description": "Onlyfans hightlighter",
   "manifest_version": 3,
   "name": "Onlyfans hightlighter",
-  "permissions": ["storage", "webRequest", "scripting"],
+  "permissions": ["storage", "webRequest", "scripting", "history"],
   "host_permissions": ["https://onlyfans.com/*"],
   "icons": {
     "16": "logo.png",
     "48": "logo.png",
     "128": "logo.png"
   },
-  "version": "1.5.0"
+  "version": "1.7.0"
 }
