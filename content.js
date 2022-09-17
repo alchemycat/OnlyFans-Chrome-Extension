@@ -1,5 +1,5 @@
 window.onload = () => {
-  chrome.runtime.onMessage.addListener(async (message) => {
+  function sendRequest(message) {
     if (message.type == "REQUEST") {
       fetch(message.body.url, {
         headers: message.body.headers,
@@ -12,11 +12,20 @@ window.onload = () => {
       })
         .then((res) => res.json())
         .then((body) => {
-          chrome.runtime.sendMessage({
-            type: "REQUEST_COMPLETE",
-            friends: body,
-          });
+          if (body.length > 0) {
+            chrome.runtime.sendMessage({
+              type: "REQUEST_COMPLETE",
+              friends: body,
+            });
+          } else {
+            console.log("Нету данных о друзьях");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
         });
     }
-  });
+  }
+
+  chrome.runtime.onMessage.addListener(sendRequest);
 };
