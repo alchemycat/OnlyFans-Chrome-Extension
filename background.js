@@ -64,6 +64,11 @@ function changeStyles(list) {
       );
       if (friends.length > 0) {
         clearInterval(intervalId);
+        let button = document
+          .querySelector(".b-profile__friends__list")
+          .parentElement.querySelector("button");
+        button.textContent = `${button.textContent} (Подписки показаны)`;
+        button.style.color = "green";
         friends.forEach((item, i) => {
           if (list[i].subscribedBy) {
             item.querySelector(".b-username > .g-user-name").style.color =
